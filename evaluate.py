@@ -27,8 +27,8 @@ def evaluate_model(model, data_loader, device):
                 landmarks=landmarks
             )
 
-            loss = torch.nn.functional.mse_loss(outputs, labels)
-            losses.append(loss.item)
+            loss = mae_loss(outputs, labels)
+            losses.append(loss.item())
 
             errors = torch.abs(outputs - labels)
             all_errors.append(errors)

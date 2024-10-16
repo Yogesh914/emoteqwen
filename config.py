@@ -5,17 +5,19 @@ class Config:
     n_landmarks = 478
     embedding_type = 'mlp'
 
-    landmarks_file = '../data/facial_landmarks_dataset/window30_step10/landmarks.npy'
-    transcriptions_file = '../data/facial_landmarks_dataset/window30_step10/transcriptions.npy'
-    labels_file = '../data/facial_landmarks_dataset/window30_step10/labels.npy'
-    eval_split = 0.1
-    prompt = "Classify emotion from the features above.\n"
+    landmarks_file = '../data/facial_landmarks_dataset/top30_fft.npy'
+    transcriptions_file = '../data/facial_landmarks_dataset/transcriptions_fft.npy'
+    labels_file = '../data/facial_landmarks_dataset/labels_fft.npy'
 
-    batch_size = 32
-    learning_rate = 2e-5
-    num_epochs = 10
+    eval_split = 0.1
+    prompt = ""
+
+    batch_size = 4
+    learning_rate = 2e-4
+    num_epochs = 30
 
     device = "cuda"
     
     log_dir = "./tensorboard_logs"
     model_save_dir = "./saved_models"
+    best_model = "./saved_models/best_top30_model.pth"
