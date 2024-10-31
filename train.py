@@ -28,7 +28,7 @@ def train(model, data_loader, optimizer, device, epoch, writer):
             attention_mask=attention_mask,
             landmarks=landmarks
         )
-
+        
         loss = mae_loss(outputs, labels)
         losses.append(loss.item())
         loss.backward()
@@ -40,7 +40,7 @@ def train(model, data_loader, optimizer, device, epoch, writer):
         
         del input_ids, attention_mask, landmarks, labels, outputs, loss
         torch.cuda.empty_cache()
-
+        
     return np.mean(losses)
 
 def validate(model, data_loader, device):
@@ -64,7 +64,7 @@ def validate(model, data_loader, device):
             
             del input_ids, attention_mask, landmarks, labels, outputs, loss
             torch.cuda.empty_cache()
-
+    
     return np.mean(losses)
 
 
@@ -80,15 +80,10 @@ def train_model(model, train_dataset, val_dataset, config):
         {'params': model.emotion_regressor.parameters()}
     ], lr=config.learning_rate)
 
-    scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=2, verbose=True)
+    scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=1, verbose=True)
 
-
-    log_dir = os.path.join(config.log_dir, datetime.now().strftime("%Y%m%d-%H%M%S"))
-    writer = SummaryWriter(log_dir=log_dir)
-
+    writer = SummaryWriter(log_dir=config.log_dir)
     best_val_loss = float('inf')
-    # early_stopping_counter = 0
-    # patience = 5
 
     for epoch in range(config.num_epochs):
         print(f"Epoch {epoch + 1}/{config.num_epochs}")
@@ -97,28 +92,15 @@ def train_model(model, train_dataset, val_dataset, config):
         print(f"Training Loss: {train_loss:.4f}")
         print(f"Validation Loss: {val_loss:.4f}")
 
-
-
         writer.add_scalar('Epoch Training Loss', train_loss, epoch)
         writer.add_scalar('Epoch Validation Loss', val_loss, epoch)
-
-        scheduler.step(val_loss)
 
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             torch.save(model.state_dict(), config.best_model)
             print(f"New best model saved with validation loss: {best_val_loss:.4f}")
 
-        # else:
-        #     early_stopping_counter += 1
-        #     if early_stopping_counter >= patience:
-        #         print("Early stopping triggered!")
-        #         break
-
-        # if optimizer.param_groups[0]['lr'] < 1e-6:
-        #     print("Learning rate too small. Stopping training.")
-        #     break
+        scheduler.step(train_loss)
 
     writer.close()
-    print(f"Tensorboard logs saved to {log_dir}")
     return model

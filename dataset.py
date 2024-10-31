@@ -7,7 +7,7 @@ import pandas as pd
 class EmotionDataset(Dataset):
     def __init__(self, transcriptions, landmarks, labels, tokenizer, mean, std, prompt):
         self.transcriptions = transcriptions
-        self.landmarks = (landmarks - mean) / std  # shape: (num_samples, 30, N_landmarks, 3)
+        self.landmarks = landmarks #(landmarks - mean) / std  # shape: (num_samples, 30, N_landmarks, 3)
         self.labels = labels  # shape: (num_samples, 6)
         self.tokenizer = tokenizer
         self.prompt = prompt
@@ -55,5 +55,5 @@ def custom_collate_fn(batch):
         'labels': labels
     }
 
-def load_emotion_dataset(transcriptions, landmarks, labels, tokenizer, mean, std, prompt):
+def load_emotion_dataset(transcriptions, landmarks, labels, tokenizer, mean=0, std=0, prompt=''):
     return EmotionDataset(transcriptions, landmarks, labels, tokenizer, mean, std, prompt)
